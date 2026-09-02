@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "alpaca": {
+      "command": "uvx",
+      "args": ["alpaca-mcp-server@2.3.0", "--env-file", ".env"],
+      "env": {
+        "ALPACA_PAPER_TRADE": "true",
+        "ALPACA_TOOLSETS": "account,trading,assets,stock-data,options-data,news"
+      }
+    }
+  }
+}

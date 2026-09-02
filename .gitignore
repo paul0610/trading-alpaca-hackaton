@@ -1,0 +1,20 @@
+# credenciales — NUNCA commitear (el repo sera PUBLICO)
+.env
+*.env.local
+.mcp.json.local
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# estado y logs locales del agente
+logs/
+*.log
+state/
+*.sqlite
+
+# diario de la corrida (decisiones/eventos/estado/lock). El dashboard del
+# submit se genera desde aqui, pero los JSONL crudos no van al repo.
+diario/
