@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<meta name="description" content="Remora Desk decision and risk journal dashboard">
+<title>Remora Desk · Decision Journal</title><style>
+:root{color-scheme:dark;--bg:#071118;--panel:#0c1a22;--panel2:#10242d;
+--line:#203840;--text:#ecf7f4;--muted:#8da6a7;--cyan:#55d6c2;
+--green:#36d9a0;--red:#ff6b6b;--amber:#ffbd66;--ink:#061014}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);
+font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:
+radial-gradient(circle at 78% -10%,rgba(85,214,194,.13),transparent 34%),
+linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+background-size:auto,32px 32px,32px 32px}.shell{max-width:1440px;margin:auto;
+padding:26px 28px 60px;position:relative}.top{display:flex;align-items:flex-start;
+justify-content:space-between;gap:24px;margin-bottom:22px}.brand{display:flex;gap:14px;
+align-items:center}.mark{width:46px;height:46px;border:1px solid var(--cyan);
+display:grid;place-items:center;border-radius:13px;background:rgba(85,214,194,.08);
+font-family:ui-monospace,monospace;font-weight:900;color:var(--cyan);font-size:19px}
+h1{font-size:23px;letter-spacing:-.02em;margin:0}h1 span{color:var(--cyan)}
+.brand p,.updated{margin:4px 0 0;color:var(--muted);font-size:13px}.status{text-align:right}
+.status b{display:inline-flex;gap:7px;align-items:center;border:1px solid var(--line);
+border-radius:99px;padding:7px 11px;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+.dot.halt{background:var(--red);box-shadow:0 0 12px var(--red)}.metrics{display:grid;
+grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:12px}.metric,
+.panel{background:linear-gradient(150deg,rgba(16,36,45,.96),rgba(10,25,32,.96));
+border:1px solid var(--line);border-radius:15px}.metric{padding:17px 18px;min-height:112px}
+.metric span,.eyebrow{display:block;color:var(--muted);font-size:11px;font-weight:700;
+letter-spacing:.11em;text-transform:uppercase}.metric strong{display:block;font-size:28px;
+line-height:1;margin:17px 0 8px;letter-spacing:-.035em}.metric small{color:var(--muted)}
+.metric.good strong{color:var(--green)}.metric.bad strong{color:var(--red)}
+.limits{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:12px}
+.limit{background:#0a171e;padding:12px 16px;display:flex;justify-content:space-between;
+gap:12px;font-size:12px}.limit span{color:var(--muted)}.limit b{font-family:ui-monospace,monospace}
+.grid{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(300px,.8fr);gap:12px;
+margin-bottom:12px}.panel{padding:19px}.panel-head{display:flex;justify-content:space-between;
+align-items:flex-end;gap:16px;margin-bottom:12px}.panel h2{font-size:16px;margin:4px 0 0}
+.panel-head strong{font-size:20px}.curve{width:100%;height:210px;display:block}.zero{stroke:var(--line);
+stroke-width:1;stroke-dasharray:4 5}.empty-chart{height:210px;border:1px dashed var(--line);
+display:grid;place-content:center;text-align:center;border-radius:10px;color:var(--muted)}
+.empty-chart span{color:var(--text);font-weight:700}.empty-chart small{margin-top:5px}
+.gate-row{display:grid;grid-template-columns:34px 1fr 28px 44px;gap:9px;align-items:center;
+margin:13px 0}.gate-row code{color:var(--cyan);font-weight:800}.gate-row b{text-align:right}
+.gate-row small{color:var(--muted);text-align:right}.bar{height:7px;background:#061015;
+border-radius:20px;overflow:hidden}.bar i{display:block;height:100%;background:var(--amber);
+border-radius:20px}.empty-inline{color:var(--muted);padding:36px 2px;line-height:1.6}
+.table-panel{padding:0;overflow:hidden}.table-head{padding:19px 19px 15px}.scroll{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:940px;font-size:12px}th{text-align:left;
+color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:11px 14px;
+border-top:1px solid var(--line);border-bottom:1px solid var(--line)}td{padding:13px 14px;
+border-bottom:1px solid rgba(32,56,64,.65);vertical-align:top}tbody tr:hover{background:rgba(85,214,194,.035)}
+time{white-space:nowrap;color:var(--muted);font-family:ui-monospace,monospace}.pill{display:inline-block;
+padding:4px 7px;border-radius:6px;font-weight:800;font-size:10px;letter-spacing:.06em}
+.pill.open{background:rgba(54,217,160,.12);color:var(--green)}.pill.pass{background:rgba(141,166,167,.11);
+color:#b8cbca}.reason{max-width:420px;line-height:1.5;color:#c8d9d7}.empty-table{text-align:center;
+padding:54px;color:var(--muted)}footer{display:flex;justify-content:space-between;gap:20px;
+color:var(--muted);font-size:11px;margin-top:16px}footer b{color:var(--cyan)}
+@media(max-width:900px){.metrics{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}
+.limits{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.shell{padding:18px 14px 40px}
+.top{display:block}.status{text-align:left;margin-top:14px}.metrics{grid-template-columns:1fr 1fr}
+.metric{padding:14px;min-height:102px}.metric strong{font-size:23px}.limits{grid-template-columns:1fr}
+footer{display:block;line-height:1.8}}
+</style></head>
+<body><main class="shell"><header class="top"><div class="brand"><div class="mark">RD</div><div>
+<h1>Remora <span>Desk</span></h1><p>Decision journal · every trade, every PASS, every hard gate</p></div></div>
+<div class="status"><b><i class="dot"></i>RISK ENGINE READY</b><div class="updated">SOMBRA · 2026-09-02 02:13 UTC</div></div></header>
+<section class="metrics"><article class="metric "><span>Account equity</span><strong>$100,000.00</strong><small>Paper account · session 2026-09-01</small></article><article class="metric "><span>Realized P&amp;L</span><strong>$0.00</strong><small>0 closed fills</small></article><article class="metric "><span>Decisions</span><strong>2</strong><small>2 PASS · 0 shadow OPEN</small></article><article class="metric "><span>Win rate</span><strong>—</strong><small>0 wins · 0 losses</small></article><article class="metric "><span>Avg. slippage</span><strong>—</strong><small>Entry + exit fills</small></article></section>
+<section class="limits" aria-label="Hard risk limits"><div class="limit"><span>Premium / trade</span><b>≤ $500</b></div>
+<div class="limit"><span>Aggregate premium</span><b>≤ $1,500</b></div><div class="limit"><span>Open positions</span><b>0 / 3</b></div>
+<div class="limit"><span>Forced flat</span><b>15:50 ET</b></div></section>
+<section class="grid"><article class="panel"><div class="panel-head"><div><span class="eyebrow">Realized outcome</span>
+<h2>Cumulative P&amp;L</h2></div><strong>$0.00</strong></div><div class="empty-chart"><span>No closed trades yet.</span><small>The realized P&amp;L curve will appear here.</small></div></article>
+<article class="panel"><div class="panel-head"><div><span class="eyebrow">Deterministic officer</span>
+<h2>Hard-gate failures</h2></div><strong>0</strong></div><div class="empty-inline">No hard-gate failures recorded. NOT_EVALUATED is kept separate from PASS.</div></article></section>
+<section class="panel table-panel"><div class="table-head"><span class="eyebrow">Audit trail</span><h2>Recent decisions</h2></div>
+<div class="scroll"><table><thead><tr><th>ET timestamp</th><th>Symbol</th><th>Signal</th><th>Action</th>
+<th>Failed gates</th><th>LLM conf.</th><th>Recorded reasoning</th></tr></thead><tbody><tr><td><time>2026-09-01 22:13:46 ET</time></td><td>SPY</td><td>—</td><td><span class="pill pass">PASS</span></td><td>—</td><td>—</td><td class="reason">NO_CRUCE:S3,S4,S5</td></tr><tr><td><time>2026-09-01 22:07:05 ET</time></td><td>SPY</td><td>—</td><td><span class="pill pass">PASS</span></td><td>—</td><td>—</td><td class="reason">NO_CRUCE:S3,S4,S5</td></tr></tbody></table></div></section>
+<footer><span><b>Signal → risk → AI → revalidation → limit order.</b> AI may narrow; it never overrides risk.</span>
+<span>Generated from local JSONL · no synthetic trades · 2026-09-02 02:13 UTC</span></footer></main></body></html>
