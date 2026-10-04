@@ -61,11 +61,68 @@ python validar_senal.py --dias 5
 python validar_contrato.py
 
 # 5. Run the desk in shadow mode: it decides and journals, but never orders
-python -m motor.agente --modo sombra
+.\lanzar.cmd sombra
 ```
 
-`sombra` (shadow) is the default and the only mode this codebase will start on
-its own. `real` is launched by hand, deliberately.
+## Running the desk
+
+`lanzar.cmd` is the supervised launcher and **the way this desk was actually run
+during the hackathon**. Use it to reproduce the run faithfully.
+
+```bash
+.\lanzar.cmd            # uses MODO from .env (defaults to shadow)
+.\lanzar.cmd sombra     # forces shadow: decides and journals, never orders
+.\lanzar.cmd real       # posts multi-leg orders to the PAPER account
+```
+
+### `sombra` vs `real`
+
+| | `sombra` (shadow) | `real` |
+|---|---|---|
+| Reads live market data | yes | yes |
+| Runs signal, gates and the LLM | yes | yes |
+| Writes the full journal | yes | yes |
+| **Posts orders** | **never** | yes — to the Alpaca **paper** account |
+
+**`real` does not mean real money.** It means real *orders*, placed against
+`paper-api.alpaca.markets` with simulated funds. `ALPACA_PAPER_TRADE=true` is
+enforced at startup and the config validator refuses to run without it; no code
+path in this repository can reach a live-money endpoint.
+
+`sombra` is the default and the only mode this codebase will start on its own.
+`real` requires either an explicit `--modo real` or an interactive `[S/N]`
+confirmation at the launcher prompt — it is never entered by accident.
+
+### What the launcher adds
+
+Running the module bare (`python -m motor.agente --modo real`) works, but it is
+unsupervised. `lanzar.cmd` wraps it in a restart loop, which is what makes an
+unattended multi-hour session survivable:
+
+| Exit code | Meaning | Launcher does |
+|---|---|---|
+| `0` | clean stop | stops |
+| `2` | invalid configuration | stops — a restart cannot fix it |
+| `3` | lock held by another engine | stops — a second engine would duplicate orders |
+| `4` | needs a human: account error, ambiguous reconciliation, or persisted positions in a non-`real` mode | stops |
+| anything else | crash | restarts after 10 s |
+
+A process lock (`diario/motor.lock`) guarantees only one engine ever owns the
+account, so relaunching over a live engine fails cleanly with exit code `3`
+instead of double-ordering. On every start the executor reconciles open orders
+and positions against the broker before it is allowed to do anything else.
+
+### Not on Windows
+
+`lanzar.cmd` is a Windows batch file; the engine itself is platform-independent.
+Run it directly and supply your own supervision:
+
+```bash
+python -m motor.agente --modo sombra
+python -m motor.agente --modo real     # no confirmation, no restart loop
+```
+
+### Other entry points
 
 ```bash
 python -m motor.agente --un-ciclo      # a single decision cycle, then exit

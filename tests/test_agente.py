@@ -74,3 +74,56 @@ class TestEOD(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestProximoCiclo(unittest.TestCase):
+    """La cadencia sale de config.CICLO_MIN, no de un literal.
+
+    Regresion: `proximo_ciclo` tenia el 10 hardcodeado en la aritmetica de
+    alineacion, asi que bajar CICLO_MIN a 5 no movia nada — el motor seguia
+    despertando en la rejilla de 10 min y se perdia la mitad de los cierres
+    de vela 5m.
+    """
+
+    def _minutos_de_un_dia(self, paso):
+        """Bordes que produce el planificador durante una sesion completa."""
+        from motor import config
+        with mock.patch.object(config, 'CICLO_MIN', paso):
+            # 2026-09-02 09:30:00 ET en epoch, avanzando ciclo a ciclo.
+            t = reloj.epoch_de_et(2026, 9, 2, 9, 30, 0)
+            fin = reloj.epoch_de_et(2026, 9, 2, 16, 0, 0)
+            vistos = []
+            while t < fin:
+                t = agente.proximo_ciclo(t)
+                if t >= fin:
+                    break
+                et = reloj.et(t)
+                vistos.append((et.minute, et.second))
+            return vistos
+
+    def test_cadencia_5_cae_en_cada_cierre_de_vela_5m(self):
+        vistos = self._minutos_de_un_dia(5)
+        self.assertTrue(vistos, 'el planificador no produjo ciclos')
+        for minuto, segundo in vistos:
+            self.assertEqual(minuto % 5, 0,
+                             'ciclo en :%02d, fuera del cierre de vela 5m' % minuto)
+            self.assertEqual(segundo, 15, 'el desfase de 15 s se perdio')
+
+    def test_cadencia_10_conserva_la_rejilla_original(self):
+        for minuto, segundo in self._minutos_de_un_dia(10):
+            self.assertEqual(minuto % 10, 5,
+                             'ciclo en :%02d, fuera de la rejilla :x5' % minuto)
+            self.assertEqual(segundo, 15)
+
+    def test_cinco_da_el_doble_de_ciclos_que_diez(self):
+        self.assertEqual(len(self._minutos_de_un_dia(5)),
+                         2 * len(self._minutos_de_un_dia(10)))
+
+    def test_nunca_devuelve_un_instante_pasado(self):
+        from motor import config
+        with mock.patch.object(config, 'CICLO_MIN', 5):
+            base = reloj.epoch_de_et(2026, 9, 2, 10, 5, 0)
+            # justo en el borde, justo despues y justo antes del desfase
+            for delta in (-0.5, 0.0, 14.9, 15.0, 15.1, 299.0):
+                ahora = base + delta
+                self.assertGreater(agente.proximo_ciclo(ahora), ahora)

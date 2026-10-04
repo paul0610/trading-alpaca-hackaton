@@ -1,0 +1,6 @@
+fecha,hora_et,impacto,evento
+2026-09-02,08:30,high,Initial Jobless Claims
+2026-09-02,10:00,high,ISM Services PMI
+2026-09-03,08:30,high,Nonfarm Payrolls
+2026-09-03,14:00,high,FOMC Minutes
+2026-09-03,11:00,low,ejemplo de fila ignorada (solo se leen las de impacto high)

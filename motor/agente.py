@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """agente.py — punto de entrada unico del desk (ARQUITECTURA §3).
 
-Reloj de mercado -> ciclo de entrada cada 10 min (alineado a :x5+15 s) +
+Reloj de mercado -> ciclo de entrada cada CICLO_MIN (alineado a cierre 5m) +
 hilo monitor de salidas cada 60 s. HALT flags. Modo sombra / real.
 
 ORDEN DEL CICLO DE ENTRADA (corregido respecto de ARQUITECTURA §3; ver
@@ -29,9 +29,16 @@ DIAS_HISTORIAL = 6
 
 
 def proximo_ciclo(ahora):
-    """Siguiente instante :x5+15 s (05:15, 15:15, 25:15... de cada hora)."""
+    """Siguiente borde de ciclo + 15 s, alineado a los cierres de vela 5m.
+
+    Con CICLO_MIN=5 son :00:15, :05:15, :10:15...; con 10, :05:15, :15:15...
+    El desfase de 15 s da margen a que el feed publique la vela recien cerrada.
+    La cadencia sale de config: hardcodearla aqui hacia que cambiar CICLO_MIN
+    no tuviera efecto, porque el salto seguia cayendo en la rejilla de 10 min.
+    """
     t = reloj.et(ahora)
-    salto = (10 - ((t.minute - 5) % 10)) % 10
+    paso = config.CICLO_MIN
+    salto = (paso - ((t.minute - 5) % paso)) % paso
     objetivo = ahora + salto * 60 - t.second - t.microsecond / 1e6 + 15
     while objetivo <= ahora:
         objetivo += config.CICLO_MIN * 60

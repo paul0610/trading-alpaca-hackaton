@@ -55,6 +55,9 @@ class Decision(object):
                 'modelo': self.modelo, 'latencia_ms': self.ms}
 
 
+USER_AGENT = 'RemoraDesk/1.0 (+https://github.com/paul0610/trading-alpaca-hackaton)'
+
+
 def _pass(razon, error):
     return Decision('PASS', 0, razon, error)
 
@@ -124,8 +127,14 @@ def decidir(cfg, ctx, reloj_ms=None):
         'response_format': {'type': 'json_object'},
     }
     datos = json.dumps(cuerpo).encode('utf-8')
+    # User-Agent explicito: Cloudflare, delante de Featherless, rechaza el UA
+    # por defecto de urllib ("Python-urllib/x.y") con error 1010 antes de que
+    # la peticion llegue a la API. Cualquier UA propio pasa. Sin esto la capa
+    # IA devuelve 403 y el oficial de riesgo degrada a PASS en cada GO, que se
+    # ve identico a "el modelo decidio no operar". Verificado 2026-09-02.
     cabeceras = {'Authorization': 'Bearer %s' % cfg.featherless_key,
-                 'Content-Type': 'application/json'}
+                 'Content-Type': 'application/json',
+                 'User-Agent': USER_AGENT}
     url = cfg.featherless_base.rstrip('/') + '/chat/completions'
 
     ultimo = ''

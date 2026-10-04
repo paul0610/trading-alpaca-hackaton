@@ -121,7 +121,13 @@ RSI_PERIODO = 14           # [DESV] §13 no lo tabula; §3 lo fija en RSI14
 ATR_PERIODO = 20           # [DESV] §13 no lo tabula; §3 lo fija en ATR20
 
 # -- sesion (§2) --
-CICLO_MIN = 10
+# [ACTA PAUL 2026-09-02] 10 -> 5. La validacion de 5 sesiones midio 18 GO
+# pero solo 8 accionables: la rejilla de 10 min tiraba el 55% de las senales
+# validas porque nacen al cerrar una vela 5m y solo la mitad de esos cierres
+# caen en un borde de 10 min. No relaja ninguna condicion S ni ningun gate:
+# solo cambia cada cuanto el motor se asoma. El sobre de riesgo lo siguen
+# fijando G3 (8 trades/dia), G4 (3 posiciones) y G5 ($1500 de prima viva).
+CICLO_MIN = 5
 MONITOR_S = 60
 ENTRADA_INI = hhmm('9:45')
 ENTRADA_FIN = hhmm('15:00')
